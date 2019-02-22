@@ -1,6 +1,9 @@
 # realmlib/resx
 
-A resource downloader library for Realm of the Mad God.
+[![Build Status](https://travis-ci.org/thomas-crane/realmlib-resx.svg?branch=master)](https://travis-ci.org/thomas-crane/realmlib-resx)
+[![CodeFactor](https://www.codefactor.io/repository/github/thomas-crane/realmlib-resx/badge)](https://www.codefactor.io/repository/github/thomas-crane/realmlib-resx)
+
+A library for downloading Realm of the Mad God resources and assets.
 
 ## Contents
 
