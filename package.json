@@ -1,0 +1,45 @@
+{
+  "name": "@realmlib/resx",
+  "version": "1.0.0",
+  "description": "A library for downloading Realm of the Mad God resources and assets.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "lib/",
+    "license.md"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "compile": "tsc -p .",
+    "build": "npm run clean && npm run compile",
+    "test": "mocha -r ts-node/register test/*.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomas-crane/realmlib-resx.git"
+  },
+  "keywords": [
+    "rotmg",
+    "typescript",
+    "library",
+    "realmlib"
+  ],
+  "author": "tcrane",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thomas-crane/realmlib-resx/issues"
+  },
+  "homepage": "https://github.com/thomas-crane/realmlib-resx#readme",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.10",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "rimraf": "^2.6.3",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.6"
+  },
+  "dependencies": {}
+}
