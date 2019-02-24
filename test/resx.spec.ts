@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { ResX } from '../src/resx';
+import * as ResX from '../src/resx';
 
 describe('ResX', () => {
   describe('#makeGSCPath()', () => {
