@@ -1,2 +1,1 @@
-import { ResX } from './resx';
-export = ResX;
+export * from './resx';
