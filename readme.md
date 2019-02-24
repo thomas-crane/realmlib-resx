@@ -21,12 +21,18 @@ npm install @realmlib/resx
 
 ## Use
 
-This package exports a single class: `ResX`, which provides methods for downloading the latest game resources as well as extracting packet IDs from the RotMG flash clients.
+This package exports several functions for downloading the latest game resources as well as extracting packet IDs from the RotMG flash clients.
 
-To use the `ResX` class, import it into your project.
+To use these functions, import it into your project.
 
 ```typescript
-import * as ResX from '@realmlib/resx';
+import * as resx from '@realmlib/resx';
+```
+
+or import just the functions you need.
+
+```typescript
+import { getClientVersion } from '@realmlib/resx';
 ```
 
 ### Methods
@@ -36,7 +42,7 @@ import * as ResX from '@realmlib/resx';
 Fetches the latest client version. Returns a promise that resolves to a string.
 
 ```typescript
-ResX.getClientVersion().then((version) => {
+resx.getClientVersion().then((version) => {
   console.log(`The current version of the game is ${version}`);
 });
 ```
@@ -46,8 +52,8 @@ ResX.getClientVersion().then((version) => {
 Downloads the provided version of the game client. Returns a promise that resolves to a `Buffer` which contains the client.
 
 ```typescript
-ResX.getClientVersion().then((version) => {
-  return ResX.getClient(version);
+resx.getClientVersion().then((version) => {
+  return resx.getClient(version);
 }).then((clientBuffer) => {
   console.log(`Client file size: ${clientBuffer.byteLength} bytes.`);
 });
@@ -58,7 +64,7 @@ Optionally, you can pass a `WriteStream` instance to this method. If a `WriteStr
 ```typescript
 const clientFile = fs.createWriteStream('./client.swf');
 
-ResX.getClient(currentVersion, clientFile).then(() => {
+resx.getClient(currentVersion, clientFile).then(() => {
   console.log('Client finished downloading.');
 });
 ```
@@ -74,7 +80,7 @@ Note that the option of passing a `WriteStream` into which the downloaded buffer
 Fetches the latest asset version. Returns a promise that resolves to a string. Note that this version is usually the same as the client version, but can be behind for a few hours after the game updates.
 
 ```typescript
-ResX.getAssetVersion().then((version) => {
+resx.getAssetVersion().then((version) => {
   console.log(`The current version of the assets are ${version}`);
 });
 ```
@@ -86,7 +92,7 @@ Downloads the latest `GroundTypes.json` file. Returns a promise which resolves t
 ```typescript
 const groundTypesFile = fs.createWriteStream('./ground-types.json');
 
-ResX.getGroundTypes(groundTypesFile).then(() => {
+resx.getGroundTypes(groundTypesFile).then(() => {
   console.log('GroundTypes.json finished downloading.');
 });
 ```
@@ -96,7 +102,7 @@ ResX.getGroundTypes(groundTypesFile).then(() => {
 Downloads the latest `Objects.json` file. Returns a promise which resovles to a `Buffer`, or `void` if a `WriteStream` is passed to the method.
 
 ```typescript
-ResX.getObjects().then((objects) => {
+resx.getObjects().then((objects) => {
   console.log(`Objects.json file size: ${objects.byteLength} bytes.`);
 });
 ```
@@ -106,7 +112,7 @@ ResX.getObjects().then((objects) => {
 Simply combines `getClientVersion` and `getAssetVersion` in a `Promise.all` and returns a promise which resolves to an object containing both versions.
 
 ```typescript
-ResX.getVersions().then((info) => {
+resx.getVersions().then((info) => {
   console.log(`The current client version is ${info.clientVersion}`);
   console.log(`The current asset version is ${info.assetVersion}`);
 });
@@ -120,7 +126,7 @@ This method executes a Java child process, so Java must be installed and availab
 
 ```typescript
 
-ResX.unpackSwf('./clients/latest.swf').then((decompiledSwfPath) => {
+resx.unpackSwf('./clients/latest.swf').then((decompiledSwfPath) => {
   console.log(`Client decompiled into ${decompiledSwfPath}`);
 });
 ```
@@ -132,8 +138,8 @@ Creates a path from the decompiled swf folder to the file which contains the pac
 The path to the file is `scripts/kabam/rotmg/messaging/impl/GameServerConnection.as`.
 
 ```typescript
-ResX.unpackSwf('./clients/latest.swf').then((decompiledSwfPath) => {
-  const pathToGSCFile = ResX.makeGSCPath(decompiledSwfPath);
+resx.unpackSwf('./clients/latest.swf').then((decompiledSwfPath) => {
+  const pathToGSCFile = resx.makeGSCPath(decompiledSwfPath);
   // pathToGSCFile is ./clients/decompiled/scripts/kabam/.../GameServerConnection.as
 });
 ```
@@ -147,17 +153,17 @@ Note that if the value passed to this method is not a string or is the empty str
 ```typescript
 const contents = fs.readFileSync(pathToGSCFile, { encoding: 'utf8' });
 
-const packetMap = ResX.extractPacketInfo(contents);
+const packetMap = resx.extractPacketInfo(contents);
 console.log(packetMap[0]) // 'FAILURE'
 console.log(packetMap['FAILURE']); // 0
 ```
 
 ### Putting it all together
 
-The following is an example of a program which uses several of the methods from the `ResX` class in order to download the latest client and extract the packet IDs from it.
+The following is an example of a program which uses several of the methods from the `resx` class in order to download the latest client and extract the packet IDs from it.
 
 ```typescript
-import * as ResX from '@realmlib/resx';
+import * as resx from '@realmlib/resx';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -165,20 +171,20 @@ const clientPath = path.join(__dirname, 'client.swf'); // download to the curren
 const clientFile = fs.createWriteStream(clientPath);
 
 // fetch the latest version first.
-ResX.getClientVersion().then((version) => {
+resx.getClientVersion().then((version) => {
   console.log('Fetched version.');
   // then download the client.
-  return ResX.getClient(version, clientFile);
+  return resx.getClient(version, clientFile);
 }).then(() => {
   console.log('Downloaded client.');
   // unpack the client.
-  return ResX.unpackSwf(clientPath);
+  return resx.unpackSwf(clientPath);
 }).then((decompiled) => {
   console.log('Unpacked client.');
   // create a path to the GameServerConnection.as file and extract the packets.
-  const gscPath = ResX.makeGSCPath(decompiled);
+  const gscPath = resx.makeGSCPath(decompiled);
   const contents = fs.readFileSync(gscPath, { encoding: 'utf8' });
-  const packets = ResX.extractPacketInfo(contents);
+  const packets = resx.extractPacketInfo(contents);
 
   // length is divided by 2 because the map is bidirectional.
   console.log(`Extracted ${Object.keys(packets).length / 2} packets.`);
