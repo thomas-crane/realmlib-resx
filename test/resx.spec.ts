@@ -2,19 +2,19 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import * as ResX from '../src/resx';
+import * as resx from '../src/resx';
 
-describe('ResX', () => {
+describe('resx', () => {
   describe('#makeGSCPath()', () => {
     it('should return the correct path for valid inputs.', () => {
       const base = 'test';
       const expected = path.join(base, 'scripts', 'kabam', 'rotmg', 'messaging', 'impl', 'GameServerConnection.as');
-      expect(ResX.makeGSCPath(base)).to.equal(expected, 'Incorrect path returned.');
+      expect(resx.makeGSCPath(base)).to.equal(expected, 'Incorrect path returned.');
     });
     it('should return null for invalid inputs.', () => {
-      expect(ResX.makeGSCPath(123 as any)).to.equal(null, 'Number input returned non-null.');
-      expect(ResX.makeGSCPath(null)).to.equal(null, 'Null input returned non-null.');
-      expect(ResX.makeGSCPath('')).to.equal(null, 'Empty string returned non-null.');
+      expect(resx.makeGSCPath(123 as any)).to.equal(null, 'Number input returned non-null.');
+      expect(resx.makeGSCPath(null)).to.equal(null, 'Null input returned non-null.');
+      expect(resx.makeGSCPath('')).to.equal(null, 'Empty string returned non-null.');
     });
   });
   describe('#extractPacketInfo()', () => {
@@ -24,7 +24,7 @@ describe('ResX', () => {
         'static const CREATE_SUCCESS:int = 13;',
         'static const LOAD:int = 4;'
       ].join('\n');
-      const packets = ResX.extractPacketInfo(VALID_SAMPLE);
+      const packets = resx.extractPacketInfo(VALID_SAMPLE);
       expect(packets).to.deep.equal({
         0: 'FAILURE',
         13: 'CREATE_SUCCESS',
@@ -35,8 +35,9 @@ describe('ResX', () => {
       }, 'Incorrect packet ids extracted.');
     });
     it('should return null for invalid inputs.', () => {
-      expect(ResX.extractPacketInfo(1234 as any)).to.equal(null, 'Number returned non-null.');
-      expect(ResX.extractPacketInfo(null)).to.deep.equal(null, 'Null returned non-null.');
+      expect(resx.extractPacketInfo(1234 as any)).to.equal(null, 'Number returned non-null.');
+      expect(resx.extractPacketInfo(null)).to.deep.equal(null, 'Null returned non-null.');
+      expect(resx.extractPacketInfo('')).to.deep.equal(null, 'Empty string returned non-null.');
     });
     it('should return an empty object if no packets were extracted.', () => {
       const INVALID_SAMPLE = [
@@ -44,7 +45,7 @@ describe('ResX', () => {
         ' private test:int = 0',
         '}'
       ].join('\n');
-      expect(ResX.extractPacketInfo(INVALID_SAMPLE)).to.deep.equal({}, 'Invalid sample non-empty object.');
+      expect(resx.extractPacketInfo(INVALID_SAMPLE)).to.deep.equal({}, 'Invalid sample non-empty object.');
     });
   });
 });
