@@ -6,23 +6,13 @@ import { WriteStream } from 'fs';
 import * as path from 'path';
 import { Endpoints } from './endpoints';
 import * as HttpClient from './http-client';
+import * as os from 'os';
+import { NAME_MAP } from './name-map';
 
 /**
  * The path to the `lib/` folder.
  */
 const LIB_DIR = path.resolve(__dirname, '..', 'lib');
-/**
- * The regex to extract packet information from a `GameServerConnection.as` file.
- */
-const PACKET_REGEX = /static const ([A-Z_]+):int = (\d+);/g;
-/**
- * The path from a the root of a decompiled client
- * source to the `GameServerConnection.as` file.
- */
-const GSC_PATH = path.join(
-  'scripts', 'kabam', 'rotmg', 'messaging',
-  'impl', 'GameServerConnection.as'
-);
 
 /**
  * Information about the local version of the assets.
@@ -38,17 +28,6 @@ interface VersionInfo {
 interface PacketMap {
   [key: string]: any;
   [key: number]: any;
-}
-
-/**
- * Creates a path from the `base` path to the GameServerConnection.as file.
- * @param base The parent dir which contains the decompiled client source.
- */
-export function makeGSCPath(base: string): string {
-  if (typeof base !== 'string' || !base) {
-    return null;
-  }
-  return path.join(base, GSC_PATH);
 }
 
 /**
@@ -115,42 +94,55 @@ export function getVersions(): Promise<VersionInfo> {
  * which the client was unpacked into.
  * @param swfPath The path to the swf file to unpack. E.g. `C:\\clients\\latest-client.swf`.
  */
-export function unpackSwf(swfPath: string): Promise<string> {
-  return new Promise((resolve: (str: string) => void, reject: (err: Error) => void) => {
-    const pathInfo = path.parse(swfPath);
-    const args = [
-      '-jar',
-      `"${path.join(LIB_DIR, 'jpexs', 'ffdec.jar')}"`,
-      '-selectclass kabam.rotmg.messaging.impl.GameServerConnection',
-      '-export script',
-      `"${path.join(pathInfo.dir, 'decompiled')}"`,
-      `"${path.join(pathInfo.dir, pathInfo.base)}"`
-    ];
-    exec(`java ${args.join(' ')}`, (error) => {
-      if (error) {
+export function extractPackets(swfPath: string): Promise<PacketMap> {
+  return new Promise((resolve: (str: PacketMap) => void, reject: (err: Error) => void) => {
+    const exePath = path.join(LIB_DIR, `extractor_${getPlatform()}`);
+    exec(`${exePath} "${swfPath}"`, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (stderr) {
+        const error = new Error(stderr);
         reject(error);
         return;
       }
-      resolve(path.join(pathInfo.dir, 'decompiled'));
+
+      // parse the result
+      const result = JSON.parse(stdout);
+
+      const map: PacketMap = {};
+      // iterate over each key in the maps
+      // tslint:disable-next-line: forin
+      for (const id in result.mappings) {
+        const realName = NAME_MAP[result.mappings[id]];
+        if (realName === undefined) {
+          const error = new Error(`Cannot map ${result.mappings[id]} to a packet type.`);
+          reject(error);
+          return;
+        } else {
+          // add the property to the map.
+          map[realName] = parseInt(id, 10);
+          // add the reverse property
+          map[id] = realName;
+        }
+      }
+      resolve(map);
     });
   });
 }
 
 /**
- * Extracts the packet information from the given source.
- * @param source The text containing the packet ids to extract.
+ * Gets the name of the extractor executable
+ * which corresponds to the current platform.
  */
-export function extractPacketInfo(source: string): PacketMap {
-  if (typeof source !== 'string' || !source) {
-    return null;
+function getPlatform(): string {
+  switch (os.platform()) {
+    case 'darwin':
+      return 'osx';
+    case 'win32':
+      return 'windows';
+    default:
+      return 'linux';
   }
-  const packets: any = {};
-  let match = PACKET_REGEX.exec(source);
-  while (match != null) {
-    const packetId = +match[2];
-    const packetType = match[1];
-    packets[packets[packetType] = packetId] = packetType;
-    match = PACKET_REGEX.exec(source);
-  }
-  return packets;
 }

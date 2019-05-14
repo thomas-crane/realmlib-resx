@@ -118,44 +118,19 @@ resx.getVersions().then((info) => {
 });
 ```
 
-#### `unpackSwf`
+#### `extractPackets`
 
-Decompiles the swf client at the provided path and extracts the `GameServerConnection.as` file into a `decompiled/` folder in the same directory as the client. Returns a promise which resolves to the path into which the client was decompiled.
+Extracts packet types and their IDs from the given client at the provided path and returns a bidirectional map object.
 
-This method executes a Java child process, so Java must be installed and available in your PATH for this method to be successful.
+If the path provided to the method does not point to a RotMG swf client, the promise returned by this method will reject. The promise will also be rejected if the extraction process fails.
 
 ```typescript
+const clientPath = path.join(__dirname, 'client.swf');
 
-resx.unpackSwf('./clients/latest.swf').then((decompiledSwfPath) => {
-  console.log(`Client decompiled into ${decompiledSwfPath}`);
+resx.extractPackets(clientPath).then((packetMap) => {
+  console.log(packetMap[0]); // 'FAILURE'
+  console.log(packetMap['FAILURE']); // 0
 });
-```
-
-#### `makeGSCPath`
-
-Creates a path from the decompiled swf folder to the file which contains the packet IDs.
-
-The path to the file is `scripts/kabam/rotmg/messaging/impl/GameServerConnection.as`.
-
-```typescript
-resx.unpackSwf('./clients/latest.swf').then((decompiledSwfPath) => {
-  const pathToGSCFile = resx.makeGSCPath(decompiledSwfPath);
-  // pathToGSCFile is ./clients/decompiled/scripts/kabam/.../GameServerConnection.as
-});
-```
-
-#### `extractPacketInfo`
-
-Extracts packet types and their IDs from the given source and returns a bidirectional map object.
-
-Note that if the value passed to this method is not a string or is the empty string, `null` will be returned. However if a non-empty string is passed that does not contain any valid packets, then an empty object (`{}`) will be returned.
-
-```typescript
-const contents = fs.readFileSync(pathToGSCFile, { encoding: 'utf8' });
-
-const packetMap = resx.extractPacketInfo(contents);
-console.log(packetMap[0]) // 'FAILURE'
-console.log(packetMap['FAILURE']); // 0
 ```
 
 ### Putting it all together
@@ -177,14 +152,10 @@ resx.getClientVersion().then((version) => {
   return resx.getClient(version, clientFile);
 }).then(() => {
   console.log('Downloaded client.');
-  // unpack the client.
-  return resx.unpackSwf(clientPath);
-}).then((decompiled) => {
-  console.log('Unpacked client.');
-  // create a path to the GameServerConnection.as file and extract the packets.
-  const gscPath = resx.makeGSCPath(decompiled);
-  const contents = fs.readFileSync(gscPath, { encoding: 'utf8' });
-  const packets = resx.extractPacketInfo(contents);
+  // extract the packets.
+  return resx.extractPackets(clientPath);
+}).then((packets) => {
+  console.log('Extracted packets.');
 
   // length is divided by 2 because the map is bidirectional.
   console.log(`Extracted ${Object.keys(packets).length / 2} packets.`);
@@ -200,4 +171,4 @@ resx.getClientVersion().then((version) => {
 
 This project uses the following open source software
 
-+ [JPEXS Free Flash Decompiler](https://github.com/jindrapetrik/jpexs-decompiler)
++ [rusted_realm](https://github.com/dmarcuse/rusted_realm)
