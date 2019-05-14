@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.1] - 2019-05-14
+
+### Fixed
+
++ Made the lib files executable.
+
 ## [3.0.0] - 2019-05-14
 
 ### Added
