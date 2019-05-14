@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.0] - 2019-05-14
+
+### Added
+
++ Added the rusted_realm lib.
++ Added the `extractPackets` method to replace the functionality of the removed methods. See the readme for more info about this method.
+
+### Removed
+
++ The JPEXS lib has been removed.
++ The exported methods `makeGSCPath`, `unpackSwf` and `extractPacketInfo` have been removed.
+
 ## [2.0.0] - 2019-02-24
 
 ### Added
