@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.2] - 2019-05-14
+
++ No code changes, uploaded build to npm properly.
+
 ## [3.0.1] - 2019-05-14
 
 ### Fixed
