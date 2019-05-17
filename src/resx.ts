@@ -97,7 +97,7 @@ export function getVersions(): Promise<VersionInfo> {
 export function extractPackets(swfPath: string): Promise<PacketMap> {
   return new Promise((resolve: (str: PacketMap) => void, reject: (err: Error) => void) => {
     const exePath = path.join(LIB_DIR, `extractor_${getPlatform()}`);
-    exec(`${exePath} "${swfPath}"`, (err, stdout, stderr) => {
+    exec(`"${exePath}" "${swfPath}"`, (err, stdout, stderr) => {
       if (err) {
         reject(err);
         return;

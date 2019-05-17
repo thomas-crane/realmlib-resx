@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.3] - 2019-05-17
+
+### Fixes
+
++ Spaces in the path to the executable will no longer prevent the executable from running.
+
 ## [3.0.2] - 2019-05-14
 
 + No code changes, uploaded build to npm properly.
