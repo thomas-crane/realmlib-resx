@@ -1,0 +1,16 @@
+{
+  "name": "rotmg_extractor",
+  "collaborators": [
+    "Dominic Marcuse <dominic@marcuse.us>"
+  ],
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "files": [
+    "rotmg_extractor_bg.wasm",
+    "rotmg_extractor.js",
+    "rotmg_extractor_bg.js",
+    "rotmg_extractor.d.ts"
+  ],
+  "main": "rotmg_extractor.js",
+  "types": "rotmg_extractor.d.ts"
+}
