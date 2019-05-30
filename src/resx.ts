@@ -1,18 +1,11 @@
 /**
  * @module updater
  */
-import { exec } from 'child_process';
 import { WriteStream } from 'fs';
-import * as path from 'path';
+import { extract_mappings } from '../lib/extractor';
 import { Endpoints } from './endpoints';
 import * as HttpClient from './http-client';
-import * as os from 'os';
 import { NAME_MAP } from './name-map';
-
-/**
- * The path to the `lib/` folder.
- */
-const LIB_DIR = path.resolve(__dirname, '..', 'lib');
 
 /**
  * Information about the local version of the assets.
@@ -31,12 +24,25 @@ interface PacketMap {
 }
 
 /**
+ * The structure which is returned by the `extract_mappings` function.
+ */
+interface ExtractedMap {
+  mappings: {
+    [key: number]: string;
+  };
+  binary_rc4: number[];
+}
+
+/**
  * Downloads the specified version of the game client. If a `stream` is passed
- * to the method, then the file will be piped into the stream.
+ * to the method, then the file will be piped into the stream and the promise will
+ * resolve with void.
  * @param version The version of the client to download.
  * @param stream A `WriteStream` to pipe the file into.
  */
-export function getClient(version: string, stream?: WriteStream): Promise<Buffer> {
+export function getClient(version: string): Promise<Buffer>;
+export function getClient(version: string, stream: WriteStream): Promise<void>;
+export function getClient(version: string, stream?: WriteStream): Promise<Buffer | void> {
   const downloadUrl = Endpoints.GAME_CLIENT.replace('{{version}}', version);
   return HttpClient.get(downloadUrl, stream);
 }
@@ -46,7 +52,9 @@ export function getClient(version: string, stream?: WriteStream): Promise<Buffer
  * to the method, then the file will be piped into the stream.
  * @param stream A `WriteStream` to pipe the file into.
  */
-export function getGroundTypes(stream?: WriteStream): Promise<Buffer> {
+export function getGroundTypes(): Promise<Buffer>;
+export function getGroundTypes(stream: WriteStream): Promise<void>;
+export function getGroundTypes(stream?: WriteStream): Promise<Buffer | void> {
   return HttpClient.get(Endpoints.STATIC_DRIPS + '/current/json/GroundTypes.json', stream);
 }
 
@@ -55,7 +63,9 @@ export function getGroundTypes(stream?: WriteStream): Promise<Buffer> {
  * to the method, then the file will be piped into the stream.
  * @param stream A `WriteStream` to pipe the file into.
  */
-export function getObjects(stream?: WriteStream): Promise<Buffer> {
+export function getObjects(): Promise<Buffer>;
+export function getObjects(stream: WriteStream): Promise<void>;
+export function getObjects(stream?: WriteStream): Promise<Buffer | void> {
   return HttpClient.get(Endpoints.STATIC_DRIPS + '/current/json/Objects.json', stream);
 }
 
@@ -90,59 +100,24 @@ export function getVersions(): Promise<VersionInfo> {
 }
 
 /**
- * Unpacks the client. Returns the path
- * which the client was unpacked into.
- * @param swfPath The path to the swf file to unpack. E.g. `C:\\clients\\latest-client.swf`.
+ * Extracts the packet ids from a RotMG game client.
+ * @param swf The contents of the swf file to extract packet ids from.
  */
-export function extractPackets(swfPath: string): Promise<PacketMap> {
-  return new Promise((resolve: (str: PacketMap) => void, reject: (err: Error) => void) => {
-    const exePath = path.join(LIB_DIR, `extractor_${getPlatform()}`);
-    exec(`"${exePath}" "${swfPath}"`, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      if (stderr) {
-        const error = new Error(stderr);
-        reject(error);
-        return;
-      }
-
-      // parse the result
-      const result = JSON.parse(stdout);
-
-      const map: PacketMap = {};
-      // iterate over each key in the maps
-      // tslint:disable-next-line: forin
-      for (const id in result.mappings) {
-        const realName = NAME_MAP[result.mappings[id]];
-        if (realName === undefined) {
-          const error = new Error(`Cannot map ${result.mappings[id]} to a packet type.`);
-          reject(error);
-          return;
-        } else {
-          // add the property to the map.
-          map[realName] = parseInt(id, 10);
-          // add the reverse property
-          map[id] = realName;
-        }
-      }
-      resolve(map);
-    });
-  });
-}
-
-/**
- * Gets the name of the extractor executable
- * which corresponds to the current platform.
- */
-function getPlatform(): string {
-  switch (os.platform()) {
-    case 'darwin':
-      return 'osx';
-    case 'win32':
-      return 'windows';
-    default:
-      return 'linux';
+export function extractPackets(swf: Uint8Array): PacketMap {
+  const extractedMap: ExtractedMap = extract_mappings(swf);
+  const map: PacketMap = {};
+  // iterate over each key in the maps
+  // tslint:disable-next-line: forin
+  for (const id in extractedMap.mappings) {
+    const realName = NAME_MAP[extractedMap.mappings[id]];
+    if (realName === undefined) {
+      throw new Error(`Cannot map ${extractedMap.mappings[id]} to a packet type.`);
+    } else {
+      // add the property to the map.
+      map[realName] = parseInt(id, 10);
+      // add the reverse property
+      map[id] = realName;
+    }
   }
+  return map;
 }
