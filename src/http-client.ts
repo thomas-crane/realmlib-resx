@@ -24,7 +24,9 @@ export const REQUEST_HEADERS = {
  * @param path The path to make the GET request to.
  * @param options The options to use while making the request.
  */
-export function get(path: string, stream?: Writable): Promise<Buffer> {
+export function get(path: string): Promise<Buffer>;
+export function get(path: string, stream: Writable): Promise<void>;
+export function get(path: string, stream?: Writable): Promise<Buffer | void> {
   if (typeof path !== 'string') {
     return Promise.reject(new TypeError(`Parameter "path" should be a string, not ${typeof path}`));
   }
@@ -42,7 +44,9 @@ export function get(path: string, stream?: Writable): Promise<Buffer> {
   });
 }
 
-function handleResponse(msg: IncomingMessage, writeStream?: Writable): Promise<Buffer> {
+function handleResponse(msg: IncomingMessage): Promise<Buffer>;
+function handleResponse(msg: IncomingMessage, writeStream: Writable): Promise<void>;
+function handleResponse(msg: IncomingMessage, writeStream?: Writable): Promise<Buffer | void> {
   return new Promise((resolve: (buffer: Buffer) => void, reject) => {
     let stream: Readable = msg;
     if (msg.headers['content-encoding'] === 'gzip') {
