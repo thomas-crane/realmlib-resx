@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.0] - 2019-05-30
+
+### Changes
+
++ The rusted_realm extractor binaries have been replaced with a WASM binary.
++ `extractPackets` now takes a `Uint8Array` that contains the swf data instead of taking a path to the swf file.
+
 ## [3.0.3] - 2019-05-17
 
 ### Fixes

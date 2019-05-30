@@ -119,17 +119,17 @@ resx.getVersions().then((info) => {
 
 #### `extractPackets`
 
-Extracts packet types and their IDs from the given client at the provided path and returns a bidirectional map object.
+Extracts packet types and their IDs from the given client and returns a bidirectional map object.
 
-If the path provided to the method does not point to a RotMG swf client, the promise returned by this method will reject. The promise will also be rejected if the extraction process fails.
+If the extraction process fails, this method will throw.
 
 ```typescript
 const clientPath = path.join(__dirname, 'client.swf');
+const client = fs.readFileSync(clientPath);
 
-resx.extractPackets(clientPath).then((packetMap) => {
-  console.log(packetMap[0]); // 'FAILURE'
-  console.log(packetMap['FAILURE']); // 0
-});
+const packetMap = resx.extractPackets(client);
+console.log(packetMap[0]); // 'FAILURE'
+console.log(packetMap['FAILURE']); // 0
 ```
 
 ### Putting it all together
@@ -141,19 +141,16 @@ import * as resx from '@realmlib/resx';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const clientPath = path.join(__dirname, 'client.swf'); // download to the current directory.
-const clientFile = fs.createWriteStream(clientPath);
-
 // fetch the latest version first.
 resx.getClientVersion().then((version) => {
   console.log('Fetched version.');
   // then download the client.
-  return resx.getClient(version, clientFile);
-}).then(() => {
+  // it will be downloaded into memory in a `Buffer` instance.
+  return resx.getClient(version);
+}).then((clientBuffer) => {
   console.log('Downloaded client.');
   // extract the packets.
-  return resx.extractPackets(clientPath);
-}).then((packets) => {
+  const packets = resx.extractPackets(clientBuffer);
   console.log('Extracted packets.');
 
   // length is divided by 2 because the map is bidirectional.
