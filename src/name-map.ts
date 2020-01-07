@@ -101,5 +101,5 @@ export const NAME_MAP: { [key: string]: string } = {
   Death: 'DEATH',
   PetChangeSkinMsg: 'PET_CHANGE_SKIN_MSG',
   RealmHeroLeftMsg: 'REALM_HERO_LEFT_MSG',
-  ResetDailyQuests: 'RESET_DAILY_QUESTS'
+  ResetDailyQuests: 'RESET_DAILY_QUESTS',
 };

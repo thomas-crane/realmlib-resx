@@ -1,7 +1,4 @@
 /**
- * @module common/models
- */
-/**
  * A list of HTTP endpoints commonly used for clientless applications.
  */
 export enum Endpoints {
@@ -18,9 +15,10 @@ export enum Endpoints {
    */
   VERSION = 'https://www.realmofthemadgod.com/version.txt',
   /**
-   * The endpoint used to retrieve the latest client. `{{version}}` needs to be replaced with the current version before use.
+   * The endpoint used to retrieve the latest client. `{{version}}`
+   * needs to be replaced with the current version before use.
    * @example
    * const downloadPath = Endpoints.GAME_CLIENT.replace('{{version}}', currentVersion);
    */
-  GAME_CLIENT = 'https://www.realmofthemadgod.com/AssembleeGameClient{{version}}.swf'
+  GAME_CLIENT = 'https://www.realmofthemadgod.com/AssembleeGameClient{{version}}.swf',
 }

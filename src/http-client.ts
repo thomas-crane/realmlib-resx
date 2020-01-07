@@ -1,22 +1,18 @@
-/**
- * @module common/http
- */
+import { IncomingMessage } from 'http';
+import * as https from 'https';
+import { Readable, Writable } from 'stream';
 import * as url from 'url';
 import * as zlib from 'zlib';
-import * as https from 'https';
-import { IncomingMessage } from 'http';
-import { Writable, Readable } from 'stream';
 
 /**
  * The HTTP headers to include in each request.
  */
 export const REQUEST_HEADERS = {
   'Cache-Control': 'max-age=0',
-  // tslint:disable-next-line:max-line-length
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
   'Accept-Encoding': 'gzip, deflate',
-  'Connection': 'keep-alive'
+  'Connection': 'keep-alive',
 };
 
 /**
@@ -35,12 +31,12 @@ export function get(path: string, stream?: Writable): Promise<Buffer | void> {
   const opts: https.RequestOptions = {
     host: endpoint.host,
     path: endpoint.path,
-    headers: REQUEST_HEADERS
+    headers: REQUEST_HEADERS,
   };
   return new Promise((resolve: (msg: IncomingMessage) => any, reject) => {
     https.get(opts, resolve).once('error', reject);
   }).then((msg) => {
-    return handleResponse(msg, stream);
+    return handleResponse(msg, stream!);
   });
 }
 
