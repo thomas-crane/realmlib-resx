@@ -10,11 +10,9 @@
     "license.md"
   ],
   "scripts": {
-    "prepublishOnly": "npm run build && npm run lint",
-    "clean": "rimraf ./dist",
+    "prepublishOnly": "npm run compile && npm run lint",
     "compile": "tsc -p .",
-    "lint": "tslint -p .",
-    "build": "npm run clean && npm run compile"
+    "lint": "tslint -p ."
   },
   "repository": {
     "type": "git",
@@ -34,7 +32,6 @@
   "homepage": "https://github.com/thomas-crane/realmlib-resx#readme",
   "devDependencies": {
     "@types/node": "^10.17.13",
-    "rimraf": "^2.6.3",
     "tslint": "^5.20.1",
     "typescript": "^3.7.4"
   },
