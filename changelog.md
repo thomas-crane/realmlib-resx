@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.0] - 2020-01-08
+
+### Added
+
++ Added a `getServers` function to get the list of game servers.
+
 ## [4.0.0] - 2019-05-30
 
 ### Changes
