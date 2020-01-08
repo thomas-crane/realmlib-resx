@@ -7,7 +7,7 @@ const SERVER_REGEX = /<Server><Name>(\w+)<\/Name><DNS>(\d{1,3}\.\d{1,3}\.\d{1,3}
 /**
  * A server which can be connected to.
  */
-interface Server {
+export interface Server {
   /**
    * The name of the server.
    */
@@ -18,7 +18,7 @@ interface Server {
   address: string;
 }
 
-interface ServerList {
+export interface ServerList {
   [name: string]: Server;
 }
 

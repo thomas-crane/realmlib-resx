@@ -1,10 +1,16 @@
 # Changelog
 
+## [4.1.2] - 2020-01-08
+
+### Added
+
++ Exported some interfaces for servers and version info.
+
 ## [4.1.1] - 2020-01-08
 
 ### Fixed
 
-+ Removed the clean step of the build process
++ Removed the clean step of the build process.
 
 ## [4.1.0] - 2020-01-08
 

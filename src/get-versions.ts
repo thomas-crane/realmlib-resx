@@ -4,7 +4,7 @@ import { get } from './http-client';
 /**
  * Information about the local version of the assets.
  */
-interface VersionInfo {
+export interface VersionInfo {
   clientVersion: string;
   assetVersion: string;
 }
