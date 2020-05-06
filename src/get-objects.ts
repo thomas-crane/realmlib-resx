@@ -10,5 +10,5 @@ import { get } from './http-client';
 export function getObjects(): Promise<Buffer>;
 export function getObjects(stream: WriteStream): Promise<void>;
 export function getObjects(stream?: WriteStream): Promise<Buffer | void> {
-  return get(Endpoints.STATIC_DRIPS + '/current/json/Objects.json', stream!);
+  return get(Endpoints.StaticDrips + '/current/json/Objects.json', stream!);
 }

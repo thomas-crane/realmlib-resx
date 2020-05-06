@@ -12,6 +12,6 @@ import { get } from './http-client';
 export function getClient(version: string): Promise<Buffer>;
 export function getClient(version: string, stream: WriteStream): Promise<void>;
 export function getClient(version: string, stream?: WriteStream): Promise<Buffer | void> {
-  const downloadUrl = Endpoints.GAME_CLIENT.replace('{{version}}', version);
+  const downloadUrl = Endpoints.GameClientTemplate.replace('{{version}}', version);
   return get(downloadUrl, stream!);
 }

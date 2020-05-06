@@ -1,9 +1,10 @@
 {
   "name": "rotmg_extractor",
   "collaborators": [
-    "Dominic Marcuse <dominic@marcuse.us>"
+    "Dominic Marcuse <dominic@marcuse.us>",
+    "Thomas Crane <thomasgcrane@gmail.com>"
   ],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "Apache-2.0",
   "files": [
     "rotmg_extractor_bg.wasm",

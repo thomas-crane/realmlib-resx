@@ -2,7 +2,7 @@
  * A map which translates names returned by the rusted_realm extractor into
  * names which are used by @realmlib/resx.
  */
-export const NAME_MAP: { [key: string]: string } = {
+export const NAME_MAP: Record<string, string> = {
   Failure: 'FAILURE',
   AccountList: 'ACCOUNTLIST',
   ShootAck: 'SHOOTACK',

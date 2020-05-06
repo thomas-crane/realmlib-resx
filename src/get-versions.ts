@@ -13,7 +13,7 @@ export interface VersionInfo {
  * Gets the latest client version.
  */
 export async function getClientVersion(): Promise<string> {
-  const result = await get(Endpoints.VERSION);
+  const result = await get(Endpoints.Version);
   return result.toString();
 }
 
@@ -21,7 +21,7 @@ export async function getClientVersion(): Promise<string> {
  * Gets the latest asset version.
  */
 export async function getAssetVersion(): Promise<string> {
-  const result = await get(Endpoints.STATIC_DRIPS + '/current/version.txt');
+  const result = await get(Endpoints.StaticDrips + '/current/version.txt');
   return result.toString();
 }
 

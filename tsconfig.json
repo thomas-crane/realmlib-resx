@@ -9,7 +9,10 @@
     "strict": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "lib": [
+      "es2017"
+    ]
   },
   "include": [
     "src"

@@ -10,5 +10,5 @@ import { get } from './http-client';
 export function getGroundTypes(): Promise<Buffer>;
 export function getGroundTypes(stream: WriteStream): Promise<void>;
 export function getGroundTypes(stream?: WriteStream): Promise<Buffer | void> {
-  return get(Endpoints.STATIC_DRIPS + '/current/json/GroundTypes.json', stream!);
+  return get(Endpoints.StaticDrips + '/current/json/GroundTypes.json', stream!);
 }

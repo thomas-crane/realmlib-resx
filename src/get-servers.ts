@@ -18,20 +18,16 @@ export interface Server {
   address: string;
 }
 
-export interface ServerList {
-  [name: string]: Server;
-}
-
 /**
  * Downloads the latest server list and returns the
  * result as a dictionary of servers keyed by server name.
  */
-export async function getServers(): Promise<ServerList> {
+export async function getServers(): Promise<Record<string, Server>> {
   const guid = (Math.random() * 100000 + 10000).toFixed(0);
   const query = stringify({ guid });
-  const httpResult = await get(Endpoints.CHAR_LIST + `?${query}`);
+  const httpResult = await get(Endpoints.CharList + `?${query}`);
   const result = httpResult.toString();
-  const servers: ServerList = {};
+  const servers: Record<string, Server> = {};
   let match = SERVER_REGEX.exec(result);
   while (match !== null) {
     const name = match[1];

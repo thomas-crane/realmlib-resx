@@ -15,7 +15,7 @@ A library for downloading Realm of the Mad God resources and assets.
 ## Install
 
 ```bash
-npm install @realmlib/resx
+$ npm install @realmlib/resx
 ```
 
 ## Use
@@ -24,13 +24,13 @@ This package exports several functions for downloading the latest game resources
 
 To use these functions, import it into your project.
 
-```typescript
+```ts
 import * as resx from '@realmlib/resx';
 ```
 
 or import just the functions you need.
 
-```typescript
+```ts
 import { getClientVersion } from '@realmlib/resx';
 ```
 
@@ -40,7 +40,7 @@ import { getClientVersion } from '@realmlib/resx';
 
 Fetches the latest client version. Returns a promise that resolves to a string.
 
-```typescript
+```ts
 resx.getClientVersion().then((version) => {
   console.log(`The current version of the game is ${version}`);
 });
@@ -50,7 +50,7 @@ resx.getClientVersion().then((version) => {
 
 Downloads the provided version of the game client. Returns a promise that resolves to a `Buffer` which contains the client.
 
-```typescript
+```ts
 resx.getClientVersion().then((version) => {
   return resx.getClient(version);
 }).then((clientBuffer) => {
@@ -60,7 +60,7 @@ resx.getClientVersion().then((version) => {
 
 Optionally, you can pass a `WriteStream` instance to this method. If a `WriteStream` is passed, the buffer will be piped into the stream, and the promise will resolve with `void`.
 
-```typescript
+```ts
 const clientFile = fs.createWriteStream('./client.swf');
 
 resx.getClient(currentVersion, clientFile).then(() => {
@@ -78,7 +78,7 @@ Note that the option of passing a `WriteStream` into which the downloaded buffer
 
 Fetches the latest asset version. Returns a promise that resolves to a string. Note that this version is usually the same as the client version, but can be behind for a few hours after the game updates.
 
-```typescript
+```ts
 resx.getAssetVersion().then((version) => {
   console.log(`The current version of the assets are ${version}`);
 });
@@ -88,7 +88,7 @@ resx.getAssetVersion().then((version) => {
 
 Downloads the latest `GroundTypes.json` file. Returns a promise which resolves to a `Buffer`, or `void` if a `WriteStream` is passed to the method.
 
-```typescript
+```ts
 const groundTypesFile = fs.createWriteStream('./ground-types.json');
 
 resx.getGroundTypes(groundTypesFile).then(() => {
@@ -100,7 +100,7 @@ resx.getGroundTypes(groundTypesFile).then(() => {
 
 Downloads the latest `Objects.json` file. Returns a promise which resovles to a `Buffer`, or `void` if a `WriteStream` is passed to the method.
 
-```typescript
+```ts
 resx.getObjects().then((objects) => {
   console.log(`Objects.json file size: ${objects.byteLength} bytes.`);
 });
@@ -110,33 +110,74 @@ resx.getObjects().then((objects) => {
 
 Simply combines `getClientVersion` and `getAssetVersion` in a `Promise.all` and returns a promise which resolves to an object containing both versions.
 
-```typescript
+```ts
 resx.getVersions().then((info) => {
   console.log(`The current client version is ${info.clientVersion}`);
   console.log(`The current asset version is ${info.assetVersion}`);
 });
 ```
 
-#### `extractPackets`
+#### `Extractor`
 
-Extracts packet types and their IDs from the given client and returns a bidirectional map object.
+The `Extractor` is a class which provides functionality for extracting various bits of information from the game client.
 
-If the extraction process fails, this method will throw.
+To create an extractor, it must be given a `Uint8Array` containing a valid RotMG swf file.
 
-```typescript
+```ts
 const clientPath = path.join(__dirname, 'client.swf');
 const client = fs.readFileSync(clientPath);
 
-const packetMap = resx.extractPackets(client);
+const extractor = new Extractor(client);
+```
+
+If the parsing of the swf fails, the constructor will throw an error.
+
+The extractor a few methods which can be used:
+
++ `packets()`
++ `parameters()`
++ `free()`
+
+##### `packets`
+
+This method extracts packet types and their IDs from the given client and returns a bidirectional map object.
+
+If the extraction process fails, this method will throw.
+
+```ts
+const packetMap = extractor.packets();
+
 console.log(packetMap[0]); // 'FAILURE'
 console.log(packetMap['FAILURE']); // 0
+```
+
+##### `parameters`
+
+This method extracts some constants from the parameters file in the game client.
+
+```ts
+const parameters = extractor.parameters();
+
+console.log(parameters.version); // 'X33.0.1'
+console.log(parameters.nexus_gameid); // -2
+```
+
+##### `free`
+
+The extractor contains a handle to some unmanaged resources. The `free` method can be used to release these resources, and should always be called when the extractor is no longer needed.
+
+```ts
+const packets = extractor.packets();
+
+// release the resources.
+extractor.free();
 ```
 
 ### Putting it all together
 
 The following is an example of a program which uses several of the methods from the `resx` class in order to download the latest client and extract the packet IDs from it.
 
-```typescript
+```ts
 import * as resx from '@realmlib/resx';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -149,8 +190,12 @@ resx.getClientVersion().then((version) => {
   return resx.getClient(version);
 }).then((clientBuffer) => {
   console.log('Downloaded client.');
-  // extract the packets.
-  const packets = resx.extractPackets(clientBuffer);
+  // create an extractor
+  const extractor = new resx.Extractor(clientBuffer);
+
+  // extract the packets and free the resources.
+  const packets = extractor.packets();
+  extractor.free();
   console.log('Extracted packets.');
 
   // length is divided by 2 because the map is bidirectional.
@@ -160,7 +205,6 @@ resx.getClientVersion().then((version) => {
   fs.writeFileSync(packetPath, JSON.stringify(packets));
   console.log('Done!');
 });
-
 ```
 
 ## Acknowledgements
